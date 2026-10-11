@@ -1,1 +1,5 @@
 .clawdea/REPO_STATE.md
+bin/
+target/
+.idea/
+node_modules/
