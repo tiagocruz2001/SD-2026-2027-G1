@@ -11,5 +11,9 @@ public class Place implements Serializable {
         this.postalCode = postalCode;
         this.locality = locality;
     }
+
+    public String getLocality(){
+        return locality;
+    }
     
 }

@@ -26,7 +26,7 @@ public class Connection extends Thread {
     public void run() {
         try {
             Person data = Person.class.cast(go.readObject()); // lê os dados do cliente
-            out.writeUTF(data.getName()); // envia a resposta ao cliente
+            out.writeUTF(data.getPlace().getLocality()); // envia a resposta ao cliente
         } catch (EOFException e) {
             System.out.println("EOF: " + e.getMessage());
         } catch (IOException e) {

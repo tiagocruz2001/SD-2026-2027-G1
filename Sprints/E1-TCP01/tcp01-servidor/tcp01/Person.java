@@ -22,4 +22,7 @@ public class Person implements Serializable {
         return year;
     }
 
+    public Place getPlace() {
+        return place;
+    }
 }
