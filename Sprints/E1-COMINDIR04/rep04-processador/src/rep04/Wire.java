@@ -8,6 +8,7 @@ public final class Wire {
     public static final long PERIODO_HB_MS = Long.getLong("rep04.periodo", 5000L);
     public static final int FATOR_TIMEOUT = Integer.getInteger("rep04.fator", 3);
     public static final long VERIFICACAO_MS = 1000L;
+
     private Wire() {
     }
 
@@ -45,4 +46,3 @@ public final class Wire {
         return new String[] { fields[1], fields[2], fields[3] };
     }
 }
-

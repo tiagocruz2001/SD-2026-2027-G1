@@ -61,4 +61,3 @@ public class SensorRecord {
         return vector.copy();
     }
 }
-

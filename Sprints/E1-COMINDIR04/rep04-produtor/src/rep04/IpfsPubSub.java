@@ -48,17 +48,20 @@ public class IpfsPubSub {
     }
 
     static String fromMultibase(String value) {
-        if (!value.startsWith("u")) throw new IllegalArgumentException("codificacao invalida");
+        if (!value.startsWith("u"))
+            throw new IllegalArgumentException("codificacao invalida");
         return new String(Base64.getUrlDecoder().decode(value.substring(1)), StandardCharsets.UTF_8);
     }
 
     static String extractField(String json, String field) {
         String key = "\"" + field + "\":\"";
         int start = json.indexOf(key);
-        if (start < 0) throw new IllegalArgumentException("campo ausente");
+        if (start < 0)
+            throw new IllegalArgumentException("campo ausente");
         start += key.length();
         int end = json.indexOf('"', start);
-        if (end < 0) throw new IllegalArgumentException("campo incompleto");
+        if (end < 0)
+            throw new IllegalArgumentException("campo incompleto");
         return json.substring(start, end);
     }
 }

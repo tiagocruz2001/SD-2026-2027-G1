@@ -6,14 +6,21 @@ import java.util.concurrent.*;
 
 public class Producer {
     public static void main(String[] args) {
-        if (args.length < 1) { System.out.println("Uso: Producer <N> [api]"); return; }
+        if (args.length < 1) {
+            System.out.println("Uso: Producer <N> [api]");
+            return;
+        }
         int count = Integer.parseInt(args[0]);
         IpfsPubSub pub = new IpfsPubSub(args.length > 1 ? args[1] : "http://127.0.0.1:5001/api/v0");
         Partitioner partitioner = new Partitioner(count);
         HeartbeatMonitor[] monitors = new HeartbeatMonitor[count];
         PrintWriter log;
-        try { log = new PrintWriter(new FileWriter("monitor-produtor.txt", true), true); }
-        catch (IOException e) { System.out.println("Monitor: " + e.getMessage()); return; }
+        try {
+            log = new PrintWriter(new FileWriter("monitor-produtor.txt", true), true);
+        } catch (IOException e) {
+            System.out.println("Monitor: " + e.getMessage());
+            return;
+        }
         for (int k = 0; k < count; k++) {
             final int p = k;
             monitors[p] = new HeartbeatMonitor(p, Wire.PERIODO_HB_MS, Wire.FATOR_TIMEOUT,
@@ -32,7 +39,9 @@ public class Producer {
                             System.out.println("LOTE rejeitado: " + e.getMessage());
                         }
                     });
-                } catch (Exception e) { System.out.println("Subscricao p" + p + ": " + e.getMessage()); }
+                } catch (Exception e) {
+                    System.out.println("Subscricao p" + p + ": " + e.getMessage());
+                }
             }, "produtor-p" + p).start();
         }
         ScheduledExecutorService checks = Executors.newSingleThreadScheduledExecutor();
@@ -42,8 +51,10 @@ public class Producer {
             System.out.println("Produtor pronto. Formato: <sensor> <temperatura> | rajada <n> <s> | sair");
             while (scanner.hasNextLine()) {
                 String[] parts = scanner.nextLine().trim().split("\\s+");
-                if (parts.length == 0 || parts[0].isEmpty()) continue;
-                if (parts[0].equalsIgnoreCase("sair")) break;
+                if (parts.length == 0 || parts[0].isEmpty())
+                    continue;
+                if (parts[0].equalsIgnoreCase("sair"))
+                    break;
                 try {
                     if (parts[0].equalsIgnoreCase("rajada")) {
                         int amount = Integer.parseInt(parts[1]), sensors = Integer.parseInt(parts[2]);
@@ -53,10 +64,16 @@ public class Producer {
                         }
                     } else if (parts.length == 2) {
                         send(parts[0], Double.parseDouble(parts[1]), count, pub, partitioner, monitors);
-                    } else System.out.println("Formato invalido");
-                } catch (Exception e) { System.out.println("Entrada rejeitada: " + e.getMessage()); }
+                    } else
+                        System.out.println("Formato invalido");
+                } catch (Exception e) {
+                    System.out.println("Entrada rejeitada: " + e.getMessage());
+                }
             }
-        } finally { checks.shutdownNow(); log.close(); }
+        } finally {
+            checks.shutdownNow();
+            log.close();
+        }
     }
 
     private static void send(String sensor, double temperature, int count, IpfsPubSub pub,
@@ -68,7 +85,10 @@ public class Producer {
     }
 
     private static java.util.function.Consumer<String> event(PrintWriter log) {
-        return value -> { String line = System.currentTimeMillis() + ";" + value;
-            System.out.println(line); log.println(line); };
+        return value -> {
+            String line = System.currentTimeMillis() + ";" + value;
+            System.out.println(line);
+            log.println(line);
+        };
     }
 }

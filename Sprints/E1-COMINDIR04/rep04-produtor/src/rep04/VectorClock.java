@@ -3,7 +3,9 @@ package rep04;
 import java.util.Arrays;
 
 public final class VectorClock {
-    public enum Order { BEFORE, AFTER, EQUAL, CONCURRENT }
+    public enum Order {
+        BEFORE, AFTER, EQUAL, CONCURRENT
+    }
 
     private final long[] v;
 
@@ -39,12 +41,17 @@ public final class VectorClock {
     public Order compare(VectorClock other) {
         boolean menor = false, maior = false;
         for (int i = 0; i < v.length; i++) {
-            if (v[i] < other.v[i]) menor = true;
-            if (v[i] > other.v[i]) maior = true;
+            if (v[i] < other.v[i])
+                menor = true;
+            if (v[i] > other.v[i])
+                maior = true;
         }
-        if (menor && maior) return Order.CONCURRENT;
-        if (menor) return Order.BEFORE;
-        if (maior) return Order.AFTER;
+        if (menor && maior)
+            return Order.CONCURRENT;
+        if (menor)
+            return Order.BEFORE;
+        if (maior)
+            return Order.AFTER;
         return Order.EQUAL;
     }
 
@@ -53,7 +60,8 @@ public final class VectorClock {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < v.length; i++) {
-            if (i > 0) sb.append(',');
+            if (i > 0)
+                sb.append(',');
             sb.append(v[i]);
         }
         return sb.toString();

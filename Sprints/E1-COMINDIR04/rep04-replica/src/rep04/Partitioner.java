@@ -13,4 +13,3 @@ public final class Partitioner {
         return Math.floorMod(sensorId.hashCode(), count);
     }
 }
-

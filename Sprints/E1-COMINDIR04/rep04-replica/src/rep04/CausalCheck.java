@@ -89,8 +89,8 @@ public class CausalCheck {
         System.out.println("PartiÃ§Ãµes: " + count);
 
         entries.sort(Comparator
-        .comparingLong((Entry e) -> e.record.getLamport())
-        .thenComparingInt(e -> e.partition));
+                .comparingLong((Entry e) -> e.record.getLamport())
+                .thenComparingInt(e -> e.partition));
 
         Path view = folder.resolve("vista-lamport.txt");
 

@@ -8,9 +8,19 @@ public final class Wire {
     public static final long PERIODO_HB_MS = Long.getLong("rep04.periodo", 5000L);
     public static final int FATOR_TIMEOUT = Integer.getInteger("rep04.fator", 3);
     public static final long VERIFICACAO_MS = 1000L;
-    public static String type(String message) { int i=message.indexOf(';'); return i<0?message:message.substring(0,i); }
-    public static String body(String message) { int i=message.indexOf(';'); if(i<0) throw new IllegalArgumentException("sem corpo"); return message.substring(i+1); }
-    
+
+    public static String type(String message) {
+        int i = message.indexOf(';');
+        return i < 0 ? message : message.substring(0, i);
+    }
+
+    public static String body(String message) {
+        int i = message.indexOf(';');
+        if (i < 0)
+            throw new IllegalArgumentException("sem corpo");
+        return message.substring(i + 1);
+    }
+
     private Wire() {
     }
 

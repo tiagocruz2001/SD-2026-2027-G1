@@ -65,4 +65,3 @@ public class IpfsPubSub {
         return json.substring(start, end);
     }
 }
-

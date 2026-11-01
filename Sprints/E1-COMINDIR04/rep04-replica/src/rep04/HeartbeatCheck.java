@@ -27,26 +27,32 @@ public final class HeartbeatCheck {
             printBatchStats(p, value);
         }
         Map<Integer, List<Long>> failures = args.length > 2
-                ? readFailures(folder.resolve(args[2])) : Collections.emptyMap();
+                ? readFailures(folder.resolve(args[2]))
+                : Collections.emptyMap();
         analyseMonitors(folder, stats, failures);
         printCausalSummary(folder, n);
     }
 
     private static BatchStats readHeartbeats(Path path) throws IOException {
         BatchStats result = new BatchStats();
-        if (!Files.exists(path)) return result;
+        if (!Files.exists(path))
+            return result;
         for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
-            if (line.isBlank()) continue;
+            if (line.isBlank())
+                continue;
             String[] fields = line.split(";", -1);
-            if (fields.length < 6) continue;
+            if (fields.length < 6)
+                continue;
             long instant = Long.parseLong(fields[2]);
             int records = Integer.parseInt(fields[4]);
             result.count++;
             result.records += records;
             result.maxRecords = Math.max(result.maxRecords, records);
             result.bytes += Long.parseLong(fields[5]);
-            if (records == 0) result.empty++;
-            if (result.lastInstant != 0) result.intervals.add(instant - result.lastInstant);
+            if (records == 0)
+                result.empty++;
+            if (result.lastInstant != 0)
+                result.intervals.add(instant - result.lastInstant);
             result.lastInstant = instant;
         }
         return result;
@@ -68,10 +74,12 @@ public final class HeartbeatCheck {
 
     private static Map<Integer, List<Long>> readFailures(Path path) throws IOException {
         Map<Integer, List<Long>> result = new HashMap<>();
-        if (!Files.exists(path)) return result;
+        if (!Files.exists(path))
+            return result;
         for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
             String[] fields = line.trim().split(";", -1);
-            if (fields.length != 2 || !fields[0].startsWith("p")) continue;
+            if (fields.length != 2 || !fields[0].startsWith("p"))
+                continue;
             result.computeIfAbsent(Integer.parseInt(fields[0].substring(1)),
                     ignored -> new ArrayList<>()).add(Long.parseLong(fields[1]));
         }
@@ -86,18 +94,25 @@ public final class HeartbeatCheck {
                 Map<Integer, Long> pendingSuspicions = new HashMap<>();
                 for (String line : Files.readAllLines(file, StandardCharsets.UTF_8)) {
                     String[] fields = line.split(";", -1);
-                    if (fields.length < 3) continue;
+                    if (fields.length < 3)
+                        continue;
                     long instant;
-                    try { instant = Long.parseLong(fields[0]); }
-                    catch (NumberFormatException e) { continue; }
+                    try {
+                        instant = Long.parseLong(fields[0]);
+                    } catch (NumberFormatException e) {
+                        continue;
+                    }
                     int partition = partition(fields[2]);
                     if (line.contains(";SUSPEITA;")) {
                         suspected++;
                         pendingSuspicions.put(partition, instant);
                     } else if (line.contains(";RETOMA;")) {
-                        if (pendingSuspicions.remove(partition) != null) falseSuspected++;
-                    } else if (line.contains(";RECUPERACAO;")) recovered++;
-                    else if (line.contains(";HB_PERDIDO;")) lostHeartbeats++;
+                        if (pendingSuspicions.remove(partition) != null)
+                            falseSuspected++;
+                    } else if (line.contains(";RECUPERACAO;"))
+                        recovered++;
+                    else if (line.contains(";HB_PERDIDO;"))
+                        lostHeartbeats++;
                 }
                 for (Map.Entry<Integer, Long> entry : pendingSuspicions.entrySet()) {
                     List<Long> starts = failures.getOrDefault(entry.getKey(), Collections.emptyList());
@@ -115,9 +130,11 @@ public final class HeartbeatCheck {
 
     private static int partition(String value) {
         int start = value.indexOf("p");
-        if (start < 0) return -1;
+        if (start < 0)
+            return -1;
         int end = start + 1;
-        while (end < value.length() && Character.isDigit(value.charAt(end))) end++;
+        while (end < value.length() && Character.isDigit(value.charAt(end)))
+            end++;
         return Integer.parseInt(value.substring(start + 1, end));
     }
 
@@ -126,12 +143,16 @@ public final class HeartbeatCheck {
         for (int p = 0; p < n; p++) {
             Path file = folder.resolve("lider-p" + p + ".txt");
             try {
-                if (!Files.exists(file)) continue;
+                if (!Files.exists(file))
+                    continue;
                 for (String line : Files.readAllLines(file, StandardCharsets.UTF_8)) {
-                    if (line.isBlank()) continue;
+                    if (line.isBlank())
+                        continue;
                     SensorRecord record = SensorRecord.fromLine(line);
-                    if (record.getVector().get(p) == record.getSeq()) valid++;
-                    else invalid++;
+                    if (record.getVector().get(p) == record.getSeq())
+                        valid++;
+                    else
+                        invalid++;
                 }
             } catch (Exception e) {
                 System.out.println("CausalCheck indisponivel p" + p + ": " + e.getMessage());
