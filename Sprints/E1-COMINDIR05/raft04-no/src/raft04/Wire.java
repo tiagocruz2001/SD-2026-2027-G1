@@ -28,6 +28,10 @@ public final class Wire {
         return "raft04-eleicao-p" + k;
     }
 
+    public static String in(String sensor, double temperature, long lamport, VectorClock vector) {
+        return "IN;" + sensor + ";" + temperature + ";" + lamport + ";" + vector;
+    }
+
     public static int nodePort(int k, int i) {
         return PORTO_BASE + 100 * k + i;
     }

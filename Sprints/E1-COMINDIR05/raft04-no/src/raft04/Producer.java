@@ -16,13 +16,14 @@ public final class Producer {
     }
 
     public static void main(String[] args) throws Exception {
-        if (args.length < 2) {
-            System.out.println("Uso: Producer <N> <api>");
+        if (args.length < 1) {
+            System.out.println("Uso: Producer <N> [api]");
             return;
         }
         int count = Integer.parseInt(args[0]);
         String api = args.length > 1 ? args[1] : "http://127.0.0.1:5001/api/v0";
         IpfsPubSub pub = new IpfsPubSub(api);
+        Partitioner partitioner = new Partitioner(count);
         HeartbeatMonitor[] monitors = new HeartbeatMonitor[count];
         for (int p = 0; p < count; p++) {
             monitors[p] = new HeartbeatMonitor(p, Wire.PERIODO_HB_MS, Wire.FATOR_TIMEOUT, msg -> System.out.println(msg));
@@ -33,12 +34,12 @@ public final class Producer {
 
         int idx = 0;
         while (true) {
-            int p = idx % count;
-            if (monitors[p].state() == HeartbeatMonitor.State.SUSPEITO) {
-                System.out.println("AVISO: particao p" + p + " sem lider conhecido; leitura sensor" + idx + " pode perder-se");
-            }
             String sensor = "sensor" + idx;
-            String msg = "IN;" + sensor + ";" + (idx * 1.5) + ";" + System.currentTimeMillis() + ";" + idx;
+            int p = partitioner.of(sensor);
+            if (monitors[p].state() == HeartbeatMonitor.State.SUSPEITO) {
+                System.out.println("AVISO: particao p" + p + " sem lider conhecido; leitura " + sensor + " pode perder-se");
+            }
+            String msg = Wire.in(sensor, idx * 1.5, 0, new VectorClock(count));
             pub.publish(Wire.topicIn(p), msg);
             Path file = Paths.get("produtor.txt");
             Files.writeString(file, System.currentTimeMillis() + ";" + msg + System.lineSeparator(),

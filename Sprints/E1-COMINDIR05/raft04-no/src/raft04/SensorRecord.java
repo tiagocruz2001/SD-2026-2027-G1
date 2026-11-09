@@ -34,12 +34,17 @@ public class SensorRecord {
     }
 
     public static SensorRecord fromLine(String line) {
+        return fromLine(line, 3);
+    }
+
+    public static SensorRecord fromLine(String line, int partitionCount) {
         String[] fields = line.trim().split(";", -1);
         if (fields.length != 7) {
             throw new IllegalArgumentException("Registo mal formado: " + line);
         }
         return new SensorRecord(Long.parseLong(fields[0]), Long.parseLong(fields[1]), fields[2],
-                Double.parseDouble(fields[3]), fields[4], Long.parseLong(fields[5]), VectorClock.parse(fields[6], 3));
+                Double.parseDouble(fields[3]), fields[4], Long.parseLong(fields[5]),
+                VectorClock.parse(fields[6], partitionCount));
     }
 
     public long getSeq() {

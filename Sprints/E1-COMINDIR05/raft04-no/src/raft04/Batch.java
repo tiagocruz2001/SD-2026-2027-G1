@@ -40,6 +40,10 @@ public final class Batch {
     }
 
     public static Batch decode(String message, int expectedRecords) {
+        return decode(message, expectedRecords, 3);
+    }
+
+    public static Batch decode(String message, int expectedRecords, int partitionCount) {
         String[] lines = message.trim().split("\\R", -1);
         String[] header = lines[0].split(";", -1);
         if (header.length != 9 || !"LOTE".equals(header[0])) {
@@ -51,7 +55,7 @@ public final class Batch {
         }
         List<SensorRecord> records = new ArrayList<>();
         for (int i = 1; i < lines.length; i++) {
-            records.add(SensorRecord.fromLine(lines[i]));
+            records.add(SensorRecord.fromLine(lines[i], partitionCount));
         }
         return new Batch(Long.parseLong(header[1]), Integer.parseInt(header[2]), header[3],
                 Integer.parseInt(header[4]), Long.parseLong(header[5]), Long.parseLong(header[6]),
