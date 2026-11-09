@@ -55,8 +55,8 @@ public final class PartitionNode {
         if (partition < 0 || partition >= partitionCount) {
             throw new IllegalArgumentException("Particao invalida: " + partition);
         }
-        if (id < 1 || id > Wire.GRUPO) {
-            throw new IllegalArgumentException("O identificador do no tem de estar entre 1 e " + Wire.GRUPO);
+        if (id < 0 || id >= Wire.GRUPO) {
+            throw new IllegalArgumentException("O identificador do no tem de estar entre 0 e " + (Wire.GRUPO - 1));
         }
         if (Wire.ELEICAO_MIN_MS <= 0 || Wire.ELEICAO_MAX_MS < Wire.ELEICAO_MIN_MS) {
             throw new IllegalArgumentException("Intervalo de eleicao invalido");
@@ -703,7 +703,7 @@ public final class PartitionNode {
     }
 
     private void validateNodeId(int nodeId) {
-        if (nodeId < 1 || nodeId > Wire.GRUPO) {
+        if (nodeId < 0 || nodeId >= Wire.GRUPO) {
             throw new IllegalArgumentException("Identificador de no invalido: " + nodeId);
         }
     }

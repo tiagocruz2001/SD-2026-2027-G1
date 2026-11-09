@@ -1,6 +1,5 @@
 package raft04;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,7 +25,32 @@ public final class Producer {
         Partitioner partitioner = new Partitioner(count);
         HeartbeatMonitor[] monitors = new HeartbeatMonitor[count];
         for (int p = 0; p < count; p++) {
-            monitors[p] = new HeartbeatMonitor(p, Wire.PERIODO_HB_MS, Wire.FATOR_TIMEOUT, msg -> System.out.println(msg));
+            final int partition = p;
+            monitors[p] = new HeartbeatMonitor(p, Wire.PERIODO_HB_MS, Wire.FATOR_TIMEOUT,
+                    msg -> System.out.println(msg));
+            Thread subscription = new Thread(() -> {
+                try {
+                    pub.subscribe(Wire.topicData(partition), message -> {
+                        try {
+                            if (!"LOTE".equals(Wire.type(message))) {
+                                return;
+                            }
+                            String[] header = message.split("\\R", 2)[0].split(";", -1);
+                            if (header.length != 9) {
+                                throw new IllegalArgumentException("LOTE mal formado");
+                            }
+                            Batch batch = Batch.decode(message, Integer.parseInt(header[8]));
+                            monitors[partition].onHeartbeat(batch.term, batch.leader, batch.hb);
+                        } catch (RuntimeException e) {
+                            System.out.println("LOTE rejeitado p" + partition + ": " + e.getMessage());
+                        }
+                    });
+                } catch (Exception e) {
+                    System.out.println("Subscricao interrompida p" + partition + ": " + e.getMessage());
+                }
+            }, "raft04-producer-p" + partition);
+            subscription.setDaemon(true);
+            subscription.start();
         }
         ScheduledExecutorService checks = Executors.newSingleThreadScheduledExecutor();
         checks.scheduleAtFixedRate(() -> Arrays.stream(monitors).forEach(m -> m.check()), Wire.VERIFICACAO_MS,
@@ -39,7 +63,7 @@ public final class Producer {
             if (monitors[p].state() == HeartbeatMonitor.State.SUSPEITO) {
                 System.out.println("AVISO: particao p" + p + " sem lider conhecido; leitura " + sensor + " pode perder-se");
             }
-            String msg = Wire.in(sensor, idx * 1.5, 0, new VectorClock(count));
+            String msg = Wire.in(sensor, idx * 1.5, idx, new VectorClock(Wire.GRUPO));
             pub.publish(Wire.topicIn(p), msg);
             Path file = Paths.get("produtor.txt");
             Files.writeString(file, System.currentTimeMillis() + ";" + msg + System.lineSeparator(),
