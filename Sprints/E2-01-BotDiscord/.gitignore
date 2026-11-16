@@ -1,0 +1,7 @@
+# Maven
+target/
+
+# Keys nunca vão para o repositório
+.env
+*.key
+master.key
